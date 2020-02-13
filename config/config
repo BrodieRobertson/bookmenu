@@ -1,0 +1,37 @@
+# Sets the fuzzy finder to use, currently supported options are fzf and dmenu
+# default: dmenu
+# FUZZY_FINDER=dmenu
+
+# Sets the prompt text used by the fuzzy finder prompt
+# PROMPT_TEXT=Select a bookmark
+
+# The monitor to display the prompt on, leave blank to use primary monitor only
+# works in dmenu mode
+# MONITOR=
+
+# Sets the background color of the dmenu prompt
+# BACKGROUND_COLOR=#1d1f21
+
+# Sets the forground color unselected items in the dmenu prompt
+# FOREGROUND_COLOR=$d8dee9
+
+# Sets the background of the selected items in the dmenu prompt
+# SELECTED_BACKGROUND_COLOR=#444
+
+# Sets the foreground color of the selected item in the dmenu prompt
+# SELECTED_FOREGROUND_COLOR=#268bd2
+
+# Sets the font used by the dmenu prompt
+#FONT=Mono-12
+
+# Sets the seperator to be used to split the names and the paths in the bookmark files
+#SEPERATOR=:
+
+# Leave this value unset to use a horizontal dmenu prompt, set it to a number to use a vertical prompt
+#VERTICAL_LINES=
+
+# Sets the location of the bookmarks file
+# BOOKMARKS_LOCATION=~/.config/bookmenu/bookmarks
+
+# Sets the command used to open a bookmark with
+# COMMAND=$BROWSER
