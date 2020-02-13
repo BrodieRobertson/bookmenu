@@ -3,20 +3,6 @@
 # the selected value in dmenu is used to load up a new window/tab in the selected
 # browser
 
-VERTICALLINES=""
-MONITOR=""
-FONT=""
-BACKGROUNDCOLOR=""
-SELECTEDBACKGROUNDCOLOR=""
-FOREGROUNDCOLOR=""
-SELECTEDFOREGROUNDCOLOR=""
-SEPERATOR=""
-BOOKMARKS=""
-CONFIG=""
-COMMAND=""
-PROMPT=""
-FUZZY_FINDER=""
-ECHO_PATH=""
 CONFIG_FOLDER=~/.config/bookmenus
 
 DEFAULTVERTICALLINES=""
@@ -85,7 +71,7 @@ helppage() {
   echo "Future Help Page"
 }
 
-options='\-(m|l|p|fn|nb|sb|sf|co|c|b|sp|f)'
+options='\-(m|l|p|fn|nb|sb|sf|co|c|b|sp|f|a|r)'
 
 # Handles the parsing of options to check if they're valid
 handleoption() {
@@ -154,6 +140,8 @@ handleargument() {
       -co) COMMAND="$1" ;;
       -sp) SEPERATOR="$1" ;;
       -f) FUZZY_FINDER="$1" ;;
+      -a) ADD="$1" ;;
+      -r) REMOVE="$1" ;;
       *) echo "Invalid option"
   esac
   else
@@ -221,20 +209,12 @@ select_path() {
   xargs -I % grep "%$SEPERATOR" $BOOKMARKS | sed "s/.*$SEPERATOR//;"
 }
 
-bookmark=$(sort $BOOKMARKS | sed "s/$SEPERATOR.*//" | fuzzy_find | select_path)
-
-if [ -z $bookmark ]; then
-  echo "No bookmark selected"
-  exit
-fi
-
 # Handle urls to the file system
 filesystem() {
   if case $bookmark in ~/*) ;; *) false;; esac; then
     $COMMAND $bookmark &
   else
     fullpath="$HOME/$(echo $bookmark | sed "s/~\///")"
-    echo "$fullpath"
     $COMMAND $fullpath &
   fi
 }
@@ -244,11 +224,25 @@ website() {
   $COMMAND $bookmark &
 }
 
-if [ -z $ECHO_PATH ]; then
+# Add new bookmark
+if [ ! -z $ADD ]; then
+  echo "$ADD" >> $BOOKMARKS
+# Remove bookmark
+elif [ ! -z $REMOVE ]; then
+  sed -i "/$REMOVE:/d" $BOOKMARKS
+# Echo the path of selected file
+elif [ ! -z $ECHO_PATH ]; then
+  echo "$bookmark"
+# Normal operation
+else
+  bookmark=$(sort $BOOKMARKS | sed "s/$SEPERATOR.*//" | fuzzy_find | select_path)
+  if [ -z $bookmark ]; then
+    echo "No bookmark selected"
+    exit
+  fi
+
   case "$bookmark" in
     ~\/*|\/*) filesystem ;;
     *) website ;;
   esac
-else
-  echo "$bookmark"
 fi
