@@ -196,7 +196,7 @@ if [ -z "$PROMPT" ]; then PROMPT="$DEFAULTPROMPT"; fi
 if [ -z "$FUZZY_FINDER" ]; then FUZZY_FINDER="$DEFAULT_FUZZY_FINDER"; fi
 
 # Opens the selected fuzzy finder with the options set
-fuzzy_find() {
+select_finder() {
   case "$FUZZY_FINDER" in
     dmenu) dmenu -i -p "$PROMPT" -fn "$FONT" -l "$VERTICALLINES" -m "$MONITOR" -nb "$BACKGROUNDCOLOR" -nf "$FOREGROUNDCOLOR" -sb "$SELECTEDBACKGROUNDCOLOR" -sf "$SELECTEDFOREGROUNDCOLOR" ;;
     fzf) fzf ;;
@@ -224,6 +224,14 @@ website() {
   $COMMAND $bookmark &
 }
 
+select_bookmark() {
+  bookmark=$(sort $BOOKMARKS | sed "s/$SEPERATOR.*//" | select_finder | select_path)
+  if [ -z $bookmark ]; then
+    echo "No bookmark selected"
+    exit
+  fi
+}
+
 # Add new bookmark
 if [ ! -z $ADD ]; then
   echo "$ADD" >> $BOOKMARKS
@@ -232,15 +240,11 @@ elif [ ! -z $REMOVE ]; then
   sed -i "/$REMOVE:/d" $BOOKMARKS
 # Echo the path of selected file
 elif [ ! -z $ECHO_PATH ]; then
-  echo "$bookmark"
+  select_bookmark
+  echo $bookmark | sed 's/~/\/home\/brodie/'
 # Normal operation
 else
-  bookmark=$(sort $BOOKMARKS | sed "s/$SEPERATOR.*//" | fuzzy_find | select_path)
-  if [ -z $bookmark ]; then
-    echo "No bookmark selected"
-    exit
-  fi
-
+  select_bookmark
   case "$bookmark" in
     ~\/*|\/*) filesystem ;;
     *) website ;;
