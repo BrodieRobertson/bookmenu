@@ -5,11 +5,6 @@ bookmenu \- generic bookmark handler
 
 .SH SYNOPSIS
 .B bookmenu
-[\fB\-h\fR]
-[\fB\-o\fR]
-[\fB\-g\fR]
-[\fB\-gb\fR]
-[\fB\-gc\fR]
 [\fB\-l \fIlines\fR]
 [\fB\-m \fImonitor\fR]
 [\fB\-p \fItext\fR]
@@ -25,27 +20,17 @@ bookmenu \- generic bookmark handler
 [\fB\-f \fIfuzzy_finder\fR]
 [\fB\-a \fIbookmark\fR]
 [\fB\-r \fIbookmark\fR]
+[\fB\-g\fR]
+[\fB\-gb\fR]
+[\fB\-gc\fR]
+[\fB\-o\fR]
+[\fB\-h\fR]
 
 .SH DESCRIPTION
 .B bookmenu
 is a generic bookmark handler initially intended to be used to eliminate the need to migrate bookmarks between web browsers, however it has since be extended to also work with other types of bookmarks.
 
 .SH OPTIONS
-.TP
-.BR \-h
-prints out the help information.
-.TP
-.BR \-o
-outputs the path of the selected bookmark to standard out.
-.TP
-.BR \-g
-regenerates the entire configure folder.
-.TP
-.BR \-gb
-regenerates the default bookmarks file.
-.TP
-.BR \-gc
-regenerates the default config file.
 .TP
 .BR \-l " " \fIlines\fR
 lists items vertically, with the given the number of lines, only works in dmenu mode.
@@ -91,6 +76,21 @@ adds a new bookmark.
 .TP
 .BR \-r " " \fIbookmark\fR
 removes a bookmark.
+.TP
+.BR \-g
+regenerates the entire configure folder.
+.TP
+.BR \-gb
+regenerates the default bookmarks file.
+.TP
+.BR \-gc
+regenerates the default config file.
+.TP
+.BR \-o
+outputs the path of the selected bookmark to standard out.
+.TP
+.BR \-h
+prints out the help information.
 
 .SH USAGE
 see the documentation for \fIdmenu\fR(1) and \fIfzf\fR(1) for a list of the keybindings. None of the keybindings have been changed from their default values.
