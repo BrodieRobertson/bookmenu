@@ -1,4 +1,4 @@
-.TH BOOKMENU 1
+.TH BOOKMENU 1 2020-02-16 GNU
 
 .SH NAME
 bookmenu \- generic bookmark handler
@@ -94,7 +94,6 @@ prints out the help information.
 
 .SH USAGE
 see the documentation for \fIdmenu\fR(1) and \fIfzf\fR(1) for a list of the keybindings. None of the keybindings have been changed from their default values.
-
 
 .SH SEE ALSO
 \fIdmenu\fR(1), \fIfzf\fR(1)
