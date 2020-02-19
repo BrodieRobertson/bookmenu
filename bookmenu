@@ -1,24 +1,24 @@
 #!/bin/sh
-# Splits each line of my bookmarks file into an option to be passed into dmenu,
+# Splits each line of my Bookmarks file into an option to be passed into dmenu,
 # the selected value in dmenu is used to load up a new window/tab in the selected
 # browser
 
-CONFIG_FOLDER=~/.config/bookmenus
+ConfigFolder=$HOME/.config/bookmenus
 
-DEFAULTVERTICALLINES=""
-DEFAULTMONITOR=""
-DEFAULTFONT="Mono-12"
-DEFAULTBACKGROUNDCOLOR="#1d1f21"
-DEFAULTSELECTEDBACKGROUNDCOLOR="#444"
-DEFAULTFOREGROUNDCOLOR="#d8dee9"
-DEFAULTSELECTEDFOREGROUNDCOLOR="#268bd2"
-DEFAULTSEPERATOR=":"
-DEFAULTBOOKMARKS=~/.config/bookmenu/bookmarks
-DEFAULTCONFIG=~/.config/bookmenu/config
-DEFAULTCOMMAND="$BROWSER"
-DEFAULTPROMPT="Select a bookmark"
-DEFAULT_FUZZY_FINDER="dmenu"
-DEFAULT_BOOKMARKS="duckduckgo:duckduckgo.com
+DefaultVerticalLines=""
+DefaultMonitor=""
+DefaultFont="Mono-12"
+DefaultBackgroundColor="#1d1f21"
+DefaultSelectedBackgroundColor="#444"
+DefaultForegroundColor="#d8dee9"
+DefaultSelectedForegroundColor="#268bd2"
+DefaultSeperator=":"
+DefaultBookmarksFile=$HOME/.config/bookmenu/Bookmarks
+DefaultConfig=$HOME/.config/bookmenu/config
+DefaultCommand="$BROWSER"
+DefaultPrompt="Select a Bookmark"
+DefaultFuzzyFinder="dmenu"
+DefaultBookmarksFile="duckduckgo:duckduckgo.com
 ebay:www.ebay.com
 paypal:www.paypal.com
 amazon:www.amazon.com
@@ -26,43 +26,43 @@ youtube:www.youtube.com
 wikipedia:www.wikipedia.com
 github:www.github.com
 reddit:www.reddit.com"
-DEFAULT_CONFIGS="# Sets the fuzzy finder to use, currently supported options are fzf and dmenu
+DefaultConfig="# Sets the fuzzy finder to use, currently supported options are fzf and dmenu
 # default: dmenu
-# FUZZY_FINDER=dmenu
+# FuzzyFinder=dmenu
 
 # Sets the prompt text used by the fuzzy finder prompt
-# PROMPT_TEXT=Select a bookmark
+# PromptText=Select a Bookmark
 
 # The monitor to display the prompt on, leave blank to use primary monitor only
 # works in dmenu mode
-# MONITOR=
+# Monitor=
 
 # Sets the background color of the dmenu prompt
-# BACKGROUND_COLOR=#1d1f21
+# BackgroundColor=#1d1f21
 
 # Sets the forground color unselected items in the dmenu prompt
-# FOREGROUND_COLOR=$d8dee9
+# ForegroundColor=#d8dee9
 
 # Sets the background of the selected items in the dmenu prompt
-# SELECTED_BACKGROUND_COLOR=#444
+# SelectedBackgroundColor=#444
 
 # Sets the foreground color of the selected item in the dmenu prompt
-# SELECTED_FOREGROUND_COLOR=#268bd2
+# SelectedForegroundColor=#268bd2
 
 # Sets the font used by the dmenu prompt
-#FONT=Mono-12
+#Font=Mono-12
 
-# Sets the seperator to be used to split the names and the paths in the bookmark files
-#SEPERATOR=:
+# Sets the seperator to be used to split the names and the paths in the Bookmark files
+#Seperator=:
 
 # Leave this value unset to use a horizontal dmenu prompt, set it to a number to use a vertical prompt
-#VERTICAL_LINES=
+#VerticalLines=
 
-# Sets the location of the bookmarks file
-# BOOKMARKS_LOCATION=~/.config/bookmenu/bookmarks
+# Sets the location of the Bookmarks file
+# BookmarksFile=~/.config/bookmenu/Bookmarks
 
-# Sets the command used to open a bookmark with
-# COMMAND=$BROWSER
+# Sets the command used to open a Bookmark with
+# Command=$BROWSER
 "
 
 LASTOPTION=""
@@ -85,36 +85,36 @@ handleoption() {
     helppage
     exit
   elif echo "$1" | grep -Eq '\-o'; then
-    ECHO_PATH="true"
+    EchoPath="true"
   elif echo "$1" | grep -Eq '\-(g|gc|gb)'; then
     # Completely regenerate configs
     if [ $1 = "-g" ]; then
-      if [ -d $CONFIG_FOLDER ]; then
-        rm -rf $CONFIG_FOLDER
-        mkdir $CONFIG_FOLDER
-        echo "$DEFAULT_CONFIGS" > $CONFIG_FOLDER/config
-        echo "$DEFAULT_BOOKMARKS" > $CONFIG_FOLDER/bookmarks
+      if [ -d $ConfigFolder ]; then
+        rm -rf $ConfigFolder
+        mkdir $ConfigFolder
+        echo "$DefaultConfig" > $ConfigFolder/config
+        echo "$DefaultBookmarksFile" > $ConfigFolder/Bookmarks
       else
-        mkdir $CONFIG_FOLDER
-        echo "$DEFAULT_CONFIGS" > $CONFIG_FOLDER/config
-        echo "$DEFAULT_BOOKMARKS" > $CONFIG_FOLDER/bookmarks
+        mkdir $ConfigFolder
+        echo "$DefaultConfig" > $ConfigFolder/config
+        echo "$DefaultBookmarksFile" > $ConfigFolder/Bookmarks
       fi
     # Regenerate config file
     elif [ $1 = "-gc" ]; then
-      if [ -d $CONFIG_FOLDER ]; then
-        echo "$DEFAULT_CONFIGS" > $CONFIG_FOLDER/config
+      if [ -d $ConfigFolder ]; then
+        echo "$DefaultConfig" > $ConfigFolder/config
       else
-        mkdir $CONFIG_FOLDER
-        echo "$DEFAULT_CONFIGS" > $CONFIG_FOLDER/config
+        mkdir $ConfigFolder
+        echo "$DefaultConfig" > $ConfigFolder/config
       fi
-    # Regenerate bookmarks file
+    # Regenerate Bookmarks file
     else
-      if [ -d $CONFIG_FOLDER ]; then
-        echo "$DEFAULT_CONFIGS" > $CONFIG_FOLDER/config
+      if [ -d $ConfigFolder ]; then
+        echo "$DefaultConfig" > $ConfigFolder/config
       else
-        mkdir $CONFIG_FOLDER
-        echo "$DEFAULT_CONFIGS" > $CONFIG_FOLDER/config
-        echo "$DEFAULT_BOOKMARKS" > $CONFIG_FOLDER/bookmarks
+        mkdir $ConfigFolder
+        echo "$DefaultConfig" > $ConfigFolder/config
+        echo "$DefaultBookmarksFile" > $ConfigFolder/Bookmarks
       fi
     fi
   else
@@ -127,21 +127,21 @@ handleoption() {
 handleargument() {
   if [ ! -z $LASTOPTION ]; then
     case "$LASTOPTION" in
-      -l) VERTICALLINES="$1" ;;
-      -m) MONITOR="$1" ;;
-      -p) PROMPT="$1" ;;
-      -fn) FONT="$1" ;;
-      -nb) BACKGROUNDCOLOR="$1" ;;
-      -nf) FOREGROUNDCOLOR="$1" ;;
-      -sb) SELECTEDBACKGROUNDCOLOR="$1" ;;
-      -sf) SELECTEDFOREGROUNDCOLOR="$1" ;;
-      -b) BOOKMARKS="$1" ;;
-      -c) CONFIG="$1" ;;
-      -co) COMMAND="$1" ;;
-      -sp) SEPERATOR="$1" ;;
-      -f) FUZZY_FINDER="$1" ;;
-      -a) ADD="$1" ;;
-      -r) REMOVE="$1" ;;
+      -l) VerticalLines="$1" ;;
+      -m) Monitor="$1" ;;
+      -p) Prompt="$1" ;;
+      -fn) Font="$1" ;;
+      -nb) BackgroundColor="$1" ;;
+      -nf) ForegroundColor="$1" ;;
+      -sb) SelectedBackgroundColor="$1" ;;
+      -sf) SelectedForegroundColor="$1" ;;
+      -b) BookmarksFile="$1" ;;
+      -c) Config="$1" ;;
+      -co) Command="$1" ;;
+      -sp) Seperator="$1" ;;
+      -f) FuzzyFinder="$1" ;;
+      -a) Add="$1" ;;
+      -r) Remove="$1" ;;
       *) echo "Invalid option"
   esac
   else
@@ -160,92 +160,92 @@ do
   esac
 done
 
-if [ -z $CONFIG ]; then CONFIG=$DEFAULTCONFIG; fi
+if [ -z $Config ]; then Config=$DefaultConfig; fi
 
 # Handle the assignment of config values
 while read line; do
   value=$(echo $line | sed "s/.*=//")
   case "$line" in
-    VERTICAL_LINES=*) VERTICALLINES=$value ;;
-    MONITOR=*) MONITOR=$value ;;
-    FONT=*) FONT=$value ;;
-    BACKGROUND_COLOR=*) BACKGROUNDCOLOR=$value ;;
-    SELECTED_BACKGROUND_COLOR=*) SELECTEDBACKGROUNDCOLOR=$value ;;
-    FOREGROUND_COLOR=*) FOREGROUNDCOLOR=$value ;;
-    SELECTED_FOREGROUND_COLOR=*) SELECTEDFOREGROUNDCOLOR=$value ;;
-    SEPERATOR=*) SEPERATOR=$value ;;
-    BOOKMARKS_LOCATION=*) BOOKMARKS=$value ;;
-    COMMAND=*) COMMAND=$value ;;
-    PROMPT_TEXT=*) PROMPT=$value ;;
-    FUZZY_FINDER=*) FUZZY_FINDER=$value ;;
+    VerticalLines=*) VerticalLines=$value ;;
+    Monitor=*) Monitor=$value ;;
+    Font=*) Font=$value ;;
+    BackgroundColor=*) BackgroundColor=$value ;;
+    SelectedBackgroundColor=*) SelectedBackgroundColor=$value ;;
+    ForegroundColor=*) ForegroundColor=$value ;;
+    SelectedForegroundColor=*) SelectedForegroundColor=$value ;;
+    Seperator=*) Seperator=$value ;;
+    BookmarksFile=*) BookmarksFile=$value ;;
+    Command=*) Command=$value ;;
+    PromptText=*) Prompt=$value ;;
+    FuzzyFinder=*) FuzzyFinder=$value ;;
   esac
-done < $CONFIG
+done < $Config
 
 # Fill in any blank spots with default values
-if [ -z "$VERTICALLINES" ]; then VERTICALLINES="$DEFAULTVERTICALLINES"; fi
-if [ -z "$MONITOR" ]; then MONITOR="$DEFAULTMONITOR"; fi
-if [ -z "$FONT" ]; then FONT="$DEFAULTFONT"; fi
-if [ -z "$BACKGROUNDCOLOR" ]; then BACKGROUNDCOLOR="$DEFAULTBACKGROUNDCOLOR"; fi
-if [ -z "$SELECTEDBACKGROUNDCOLOR" ]; then SELECTEDBACKGROUNDCOLOR="$DEFAULTSELECTEDBACKGROUNDCOLOR"; fi
-if [ -z "$FOREGROUNDCOLOR" ]; then FOREGROUNDCOLOR="$DEFAULTFOREGROUNDCOLOR"; fi
-if [ -z "$SELECTEDFOREGROUNDCOLOR" ]; then SELECTEDFOREGROUNDCOLOR="$DEFAULTSELECTEDFOREGROUNDCOLOR"; fi
-if [ -z "$SEPERATOR" ]; then SEPERATOR="$DEFAULTSEPERATOR"; fi
-if [ -z "$BOOKMARKS" ]; then BOOKMARKS="$DEFAULTBOOKMARKS"; fi
-if [ -z "$COMMAND" ]; then COMMAND="$DEFAULTCOMMAND"; fi
-if [ -z "$PROMPT" ]; then PROMPT="$DEFAULTPROMPT"; fi
-if [ -z "$FUZZY_FINDER" ]; then FUZZY_FINDER="$DEFAULT_FUZZY_FINDER"; fi
+if [ -z "$VerticalLines" ]; then VerticalLines="$DefaultVerticalLines"; fi
+if [ -z "$Monitor" ]; then Monitor="$DefaultMonitor"; fi
+if [ -z "$Font" ]; then Font="$DefaultFont"; fi
+if [ -z "$BackgroundColor" ]; then BackgroundColor="$DefaultBackgroundColor"; fi
+if [ -z "$SelectedBackgroundColor" ]; then SelectedBackgroundColor="$DefaultSelectedBackgroundColor"; fi
+if [ -z "$ForegroundColor" ]; then ForegroundColor="$DefaultForegroundColor"; fi
+if [ -z "$SelectedForegroundColor" ]; then SelectedForegroundColor="$DefaultSelectedForegroundColor"; fi
+if [ -z "$Seperator" ]; then Seperator="$DefaultSeperator"; fi
+if [ -z "$BookmarksFile" ]; then BookmarksFile="$DefaultBookmarksFile"; fi
+if [ -z "$Command" ]; then Command="$DefaultCommand"; fi
+if [ -z "$Prompt" ]; then Prompt="$DefaultPrompt"; fi
+if [ -z "$FuzzyFinder" ]; then FuzzyFinder="$DefaultFuzzyFinder"; fi
 
 # Opens the selected fuzzy finder with the options set
-select_finder() {
-  case "$FUZZY_FINDER" in
-    dmenu) dmenu -i -p "$PROMPT" -fn "$FONT" -l "$VERTICALLINES" -m "$MONITOR" -nb "$BACKGROUNDCOLOR" -nf "$FOREGROUNDCOLOR" -sb "$SELECTEDBACKGROUNDCOLOR" -sf "$SELECTEDFOREGROUNDCOLOR" ;;
+selectfinder() {
+  case "$FuzzyFinder" in
+    dmenu) dmenu -i -p "$Prompt" -fn "$Font" -l "$VerticalLines" -m "$Monitor" -nb "$BackgroundColor" -nf "$ForegroundColor" -sb "$SelectedBackgroundColor" -sf "$SelectedForegroundColor" ;;
     fzf) fzf ;;
-    *) echo "$FUZZY_FINDER in not a supported fuzzy finder"
+    *) echo "$FuzzyFinder in not a supported fuzzy finder"
 esac
 }
 
 # Selects the path based on the name
-select_path() {
-  xargs -I % grep "%$SEPERATOR" $BOOKMARKS | sed "s/.*$SEPERATOR//;"
+selectpath() {
+  xargs -I % grep "%$Seperator" $BookmarksFile | sed "s/.*$Seperator//;"
 }
 
 # Handle urls to the file system
 filesystem() {
-  if case $bookmark in ~/*) ;; *) false;; esac; then
-    $COMMAND $bookmark &
+  if case $Bookmark in ~/*) ;; *) false;; esac; then
+    $Command $Bookmark &
   else
-    fullpath="$HOME/$(echo $bookmark | sed "s/~\///")"
-    $COMMAND $fullpath &
+    fullpath="$HOME/$(echo $Bookmark | sed "s/~\///")"
+    $Command $fullpath &
   fi
 }
 
 # Handle urls to a website
 website() {
-  $COMMAND $bookmark &
+  $Command $Bookmark &
 }
 
-select_bookmark() {
-  bookmark=$(sort $BOOKMARKS | sed "s/$SEPERATOR.*//" | select_finder | select_path)
-  if [ -z $bookmark ]; then
-    echo "No bookmark selected"
+selectBookmark() {
+  Bookmark=$(sort $BookmarksFile | sed "s/$Seperator.*//" | selectfinder | selectpath)
+  if [ -z $Bookmark ]; then
+    echo "No Bookmark selected"
     exit
   fi
 }
 
-# Add new bookmark
-if [ ! -z $ADD ]; then
-  echo "$ADD" >> $BOOKMARKS
-# Remove bookmark
-elif [ ! -z $REMOVE ]; then
-  sed -i "/$REMOVE:/d" $BOOKMARKS
+# Add new Bookmark
+if [ ! -z $Add ]; then
+  echo "$Add" >> $BookmarksFile
+# Remove Bookmark
+elif [ ! -z $Remove ]; then
+  sed -i "/$Remove:/d" $BookmarksFile
 # Echo the path of selected file
-elif [ ! -z $ECHO_PATH ]; then
-  select_bookmark
-  echo $bookmark | sed 's/~/\/home\/brodie/'
+elif [ ! -z $EchoPath ]; then
+  selectBookmark
+  echo $Bookmark | sed 's/~/\/home\/brodie/'
 # Normal operation
 else
-  select_bookmark
-  case "$bookmark" in
+  selectBookmark
+  case "$Bookmark" in
     ~\/*|\/*) filesystem ;;
     *) website ;;
   esac
