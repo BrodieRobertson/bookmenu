@@ -1,12 +1,12 @@
 #!/bin/sh
 # Splits each Line of my Bookmarks file into an option to be passed into dmenu,
-# the selected value in dmenu is used to load up a new window/tab in the selected
+# the Selected value in dmenu is used to load up a new window/tab in the Selected
 # browser
 
 ConfigFolder=$HOME/.config/bookmenus
 
-VerticalLines=""
-Monitor=""
+VerticalLines=
+Monitor=
 Font="Mono-12"
 BackgroundColor="#1d1f21"
 SelectedBackgroundColor="#444"
@@ -40,23 +40,23 @@ DefaultConfig="# Sets the fuzzy finder to use, currently supported options are f
 # Sets the background color of the dmenu prompt
 # BackgroundColor=#1d1f21
 
-# Sets the forground color unselected items in the dmenu prompt
+# Sets the forground color unSelected items in the dmenu prompt
 # ForegroundColor=#d8dee9
 
-# Sets the background of the selected items in the dmenu prompt
+# Sets the background of the Selected items in the dmenu prompt
 # SelectedBackgroundColor=#444
 
-# Sets the foreground color of the selected item in the dmenu prompt
+# Sets the foreground color of the Selected item in the dmenu prompt
 # SelectedForegroundColor=#268bd2
 
 # Sets the font used by the dmenu prompt
-#Font=Mono-12
+# Font=Mono-12
 
 # Sets the seperator to be used to split the names and the paths in the Bookmark files
-#Seperator=:
+# Seperator=:
 
 # Leave this value unset to use a horizontal dmenu prompt, set it to a number to use a vertical prompt
-#VerticalLines=
+# VerticalLines=
 
 # Sets the location of the Bookmarks file
 # BookmarksFile=$HOME/.config/bookmenu/bookmarks
@@ -102,6 +102,7 @@ GenerateConfig() {
 
 }
 
+# Loop over arguments to script
 for Value in "$@"
 do
   # Handle options
@@ -136,8 +137,6 @@ do
   fi
 done
 
-if [ -z $Config ]; then Config=$DefaultConfigFile; fi
-
 # Handle the assignment of config values
 while read Line; do
   Key=${Line%%=*}
@@ -170,8 +169,8 @@ while read Line; do
   esac
 done < $ConfigFile
 
-# Opens the selected fuzzy finder with the options set
-selectfinder() {
+# Opens the Selected fuzzy finder with the options set
+SelectFinder() {
   case "$FuzzyFinder" in
     dmenu) dmenu -i -p "$Prompt" -fn "$Font" -l "$VerticalLines" \
       -m "$Monitor" -nb "$BackgroundColor" -nf "$ForegroundColor" \
@@ -182,29 +181,29 @@ esac
 }
 
 # Selects the path based on the name
-selectpath() {
+SelectPath() {
   xargs -I % grep "%$Seperator" $BookmarksFile | sed "s/.*$Seperator//;"
 }
 
 # Handle urls to the file system
-filesystem() {
+FileSystem() {
   if case $Bookmark in ~/*) ;; *) false;; esac; then
     $Command $Bookmark &
   else
-    fullpath="$HOME/$(echo $Bookmark | sed "s/~\///")"
-    $Command $fullpath &
+    FullPath="$HOME/$(echo $Bookmark | sed "s/~\///")"
+    $Command $FullPath &
   fi
 }
 
 # Handle urls to a website
-website() {
+Website() {
   $Command $Bookmark &
 }
 
-selectBookmark() {
-  Bookmark=$(sort $BookmarksFile | sed "s/$Seperator.*//" | selectfinder | selectpath)
+SelectBookmark() {
+  Bookmark=$(sort $BookmarksFile | sed "s/$Seperator.*//" | SelectFinder | SelectPath)
   if [ -z $Bookmark ]; then
-    echo "No Bookmark selected"
+    echo "No Bookmark Selected"
     exit
   fi
 }
@@ -215,15 +214,15 @@ if [ ! -z $Add ]; then
 # Remove Bookmark
 elif [ ! -z $Remove ]; then
   sed -i "/$Remove:/d" $BookmarksFile
-# Echo the path of selected file
+# Echo the path of Selected file
 elif [ ! -z $EchoPath ]; then
-  selectBookmark
+  SelectBookmark
   echo $Bookmark | sed "s|~|$HOME|"
 # Normal operation
 else
-  selectBookmark
+  SelectBookmark
   case "$Bookmark" in
-    ~\/*|\/*) filesystem ;;
-    *) website ;;
+    ~\/*|\/*) FileSystem ;;
+    *) Website ;;
   esac
 fi
