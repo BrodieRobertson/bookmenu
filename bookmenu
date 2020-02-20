@@ -1,24 +1,24 @@
 #!/bin/sh
-# Splits each line of my Bookmarks file into an option to be passed into dmenu,
+# Splits each Line of my Bookmarks file into an option to be passed into dmenu,
 # the selected value in dmenu is used to load up a new window/tab in the selected
 # browser
 
 ConfigFolder=$HOME/.config/bookmenus
 
-DefaultVerticalLines=""
-DefaultMonitor=""
-DefaultFont="Mono-12"
-DefaultBackgroundColor="#1d1f21"
-DefaultSelectedBackgroundColor="#444"
-DefaultForegroundColor="#d8dee9"
-DefaultSelectedForegroundColor="#268bd2"
-DefaultSeperator=":"
-DefaultBookmarksFile=$HOME/.config/bookmenu/Bookmarks
-DefaultConfig=$HOME/.config/bookmenu/config
-DefaultCommand="$BROWSER"
-DefaultPrompt="Select a Bookmark"
-DefaultFuzzyFinder="dmenu"
-DefaultBookmarksFile="duckduckgo:duckduckgo.com
+VerticalLines=""
+Monitor=""
+Font="Mono-12"
+BackgroundColor="#1d1f21"
+SelectedBackgroundColor="#444"
+ForegroundColor="#d8dee9"
+SelectedForegroundColor="#268bd2"
+Seperator=":"
+BookmarksFile=$HOME/.config/bookmenu/bookmarks
+ConfigFile=$HOME/.config/bookmenu/config
+Command="$BROWSER"
+Prompt="Select a Bookmark"
+FuzzyFinder="dmenu"
+BookmarksFile="duckduckgo:duckduckgo.com
 ebay:www.ebay.com
 paypal:www.paypal.com
 amazon:www.amazon.com
@@ -59,146 +59,123 @@ DefaultConfig="# Sets the fuzzy finder to use, currently supported options are f
 #VerticalLines=
 
 # Sets the location of the Bookmarks file
-# BookmarksFile=~/.config/bookmenu/Bookmarks
+# BookmarksFile=$HOME/.config/bookmenu/bookmarks
 
 # Sets the command used to open a Bookmark with
 # Command=$BROWSER
 "
 
-LASTOPTION=""
-
-helppage() {
+HelpPage() {
   echo "Future Help Page"
 }
 
-options='\-(m|l|p|fn|nb|sb|sf|co|c|b|sp|f|a|r)'
-
-# Handles the parsing of options to check if they're valid
-handleoption() {
-  if echo "$1" | grep -Eq $options; then
-    if [ -z "$LASTOPTION" ]; then
-      LASTOPTION=$var
-    elif echo "$LASTOPTION" | grep -Eq $options ; then
-      echo "$LASTOPTION requires an argument" && exit
-    fi
-  elif echo "$1" | grep -Eq '\-h'; then
-    helppage
-    exit
-  elif echo "$1" | grep -Eq '\-o'; then
-    EchoPath="true"
-  elif echo "$1" | grep -Eq '\-(g|gc|gb)'; then
-    # Completely regenerate configs
-    if [ $1 = "-g" ]; then
-      if [ -d $ConfigFolder ]; then
-        rm -rf $ConfigFolder
-        mkdir $ConfigFolder
-        echo "$DefaultConfig" > $ConfigFolder/config
-        echo "$DefaultBookmarksFile" > $ConfigFolder/Bookmarks
-      else
-        mkdir $ConfigFolder
-        echo "$DefaultConfig" > $ConfigFolder/config
-        echo "$DefaultBookmarksFile" > $ConfigFolder/Bookmarks
-      fi
-    # Regenerate config file
-    elif [ $1 = "-gc" ]; then
-      if [ -d $ConfigFolder ]; then
-        echo "$DefaultConfig" > $ConfigFolder/config
-      else
-        mkdir $ConfigFolder
-        echo "$DefaultConfig" > $ConfigFolder/config
-      fi
-    # Regenerate Bookmarks file
+GenerateConfig() {
+  if [ $1 = "-g" ]; then
+    if [ -d $ConfigFolder ]; then
+      rm -rf $ConfigFolder
+      mkdir $ConfigFolder
+      echo "$DefaultConfig" > $ConfigFolder/config
+      echo "$DefaultBookmarksFile" > $ConfigFolder/bookmarks
     else
-      if [ -d $ConfigFolder ]; then
-        echo "$DefaultConfig" > $ConfigFolder/config
-      else
-        mkdir $ConfigFolder
-        echo "$DefaultConfig" > $ConfigFolder/config
-        echo "$DefaultBookmarksFile" > $ConfigFolder/Bookmarks
-      fi
+      mkdir $ConfigFolder
+      echo "$DefaultConfig" > $ConfigFolder/config
+      echo "$DefaultBookmarksFile" > $ConfigFolder/bookmarks
     fi
+  # Regenerate config file
+  elif [ $1 = "-gc" ]; then
+    if [ -d $ConfigFolder ]; then
+      echo "$DefaultConfig" > $ConfigFolder/config
+    else
+      mkdir $ConfigFolder
+      echo "$DefaultConfig" > $ConfigFolder/config
+    fi
+  # Regenerate Bookmarks file
   else
-    echo "Invalid option"
-    exit
+    if [ -d $ConfigFolder ]; then
+      echo "$DefaultConfig" > $ConfigFolder/config
+    else
+      mkdir $ConfigFolder
+      echo "$DefaultConfig" > $ConfigFolder/config
+      echo "$DefaultBookmarksFile" > $ConfigFolder/bookmarks
+    fi
   fi
+
 }
 
-# Handles the assignment of arguments to the previous option passed in
-handleargument() {
-  if [ ! -z $LASTOPTION ]; then
-    case "$LASTOPTION" in
-      -l) VerticalLines="$1" ;;
-      -m) Monitor="$1" ;;
-      -p) Prompt="$1" ;;
-      -fn) Font="$1" ;;
-      -nb) BackgroundColor="$1" ;;
-      -nf) ForegroundColor="$1" ;;
-      -sb) SelectedBackgroundColor="$1" ;;
-      -sf) SelectedForegroundColor="$1" ;;
-      -b) BookmarksFile="$1" ;;
-      -c) Config="$1" ;;
-      -co) Command="$1" ;;
-      -sp) Seperator="$1" ;;
-      -f) FuzzyFinder="$1" ;;
-      -a) Add="$1" ;;
-      -r) Remove="$1" ;;
-      *) echo "Invalid option"
-  esac
-  else
-    echo "No option to assign this argument to"
-    exit
-  fi
-  LASTOPTION=""
-}
-
-# Loop through each value passed in
-for var in "$@"
+for Value in "$@"
 do
-  case "$var" in
-    -*) handleoption "$var" ;;
-    *) handleargument "$var" ;;
+  # Handle options
+  case "$Value" in
+    # Options requring arguments
+    -m|-l|-p|-fn|-nb|-sb|-sf|-co|-c|-b|-sp|-f|-a|-r) OptionSet=$Value ;;
+    -h|--help) HelpPage; exit 0;;
+    -o) EchoPath=true; OptionSet=;;
+    -g|-gc|-gb) GenerateConfig $Value; OptionSet= ;;
   esac
+
+  # Handle arguments
+  if [ ! -z $OptionSet ]; then
+    case "$OptionSet" in
+      -l) VerticalLines=$Value ;;
+      -m) Monitor=$Value ;;
+      -p) Prompt=$Value ;;
+      -fn) Font=$Value ;;
+      -nb) BackgroundColor=$Value ;;
+      -nf) ForegroundColor=$Value ;;
+      -sb) SelectedBackgroundColor=$Value ;;
+      -sf) SelectedForegroundColor=$Value ;;
+      -b) BookmarksFile=$Value ;;
+      -c) Config=$Value ;;
+      -co) Command=$Value ;;
+      -sp) Seperator=$Value ;;
+      -f) FuzzyFinder=$Value ;;
+      -a) Add=$Value ;;
+      -r) Remove=$Value ;;
+      *) echo "Invalid option set" ; exit 1 ;;
+  esac
+  fi
 done
 
-if [ -z $Config ]; then Config=$DefaultConfig; fi
+if [ -z $Config ]; then Config=$DefaultConfigFile; fi
 
 # Handle the assignment of config values
-while read line; do
-  value=$(echo $line | sed "s/.*=//")
-  case "$line" in
-    VerticalLines=*) VerticalLines=$value ;;
-    Monitor=*) Monitor=$value ;;
-    Font=*) Font=$value ;;
-    BackgroundColor=*) BackgroundColor=$value ;;
-    SelectedBackgroundColor=*) SelectedBackgroundColor=$value ;;
-    ForegroundColor=*) ForegroundColor=$value ;;
-    SelectedForegroundColor=*) SelectedForegroundColor=$value ;;
-    Seperator=*) Seperator=$value ;;
-    BookmarksFile=*) BookmarksFile=$value ;;
-    Command=*) Command=$value ;;
-    PromptText=*) Prompt=$value ;;
-    FuzzyFinder=*) FuzzyFinder=$value ;;
+while read Line; do
+  Key=${Line%%=*}
+  Value=${Line##*=}
+  case $Key in
+    VerticalLines)
+      [ -n "$Value" ] && VerticalLines=$Value ;;
+    Monitor)
+      [ -n "$Value" ] && Monitor=$Value ;;
+    Font)
+      [ -n "$Value" ] && Font="$Value" ;;
+    BackgroundColor)
+      [ -n "$Value" ] && BackgroundColor=$Value ;;
+    SelectedBackgroundColor)
+      [ -n "$Value" ] && SelectedBackgroundColor=$Value ;;
+    ForegroundColor)
+      [ -n "$Value" ] && ForegroundColor=$Value ;;
+    SelectedForegroundColor)
+      [ -n "$Value" ] && SelectedForegroundColor=$Value ;;
+    Seperator)
+      [ -n "$Value" ] && Seperator=$Value ;;
+    BookmarksFile)
+      [ -n "$Value" ] && BookmarksFile=$Value ;;
+    Command)
+      [ -n "$Value" ] && Command=$Value ;;
+    PromptText)
+      [ -n "$Value" ] && Prompt=$Value ;;
+    FuzzyFinder)
+      [ -n "$Value" ] && FuzzyFinder=$Value ;;
   esac
-done < $Config
-
-# Fill in any blank spots with default values
-if [ -z "$VerticalLines" ]; then VerticalLines="$DefaultVerticalLines"; fi
-if [ -z "$Monitor" ]; then Monitor="$DefaultMonitor"; fi
-if [ -z "$Font" ]; then Font="$DefaultFont"; fi
-if [ -z "$BackgroundColor" ]; then BackgroundColor="$DefaultBackgroundColor"; fi
-if [ -z "$SelectedBackgroundColor" ]; then SelectedBackgroundColor="$DefaultSelectedBackgroundColor"; fi
-if [ -z "$ForegroundColor" ]; then ForegroundColor="$DefaultForegroundColor"; fi
-if [ -z "$SelectedForegroundColor" ]; then SelectedForegroundColor="$DefaultSelectedForegroundColor"; fi
-if [ -z "$Seperator" ]; then Seperator="$DefaultSeperator"; fi
-if [ -z "$BookmarksFile" ]; then BookmarksFile="$DefaultBookmarksFile"; fi
-if [ -z "$Command" ]; then Command="$DefaultCommand"; fi
-if [ -z "$Prompt" ]; then Prompt="$DefaultPrompt"; fi
-if [ -z "$FuzzyFinder" ]; then FuzzyFinder="$DefaultFuzzyFinder"; fi
+done < $ConfigFile
 
 # Opens the selected fuzzy finder with the options set
 selectfinder() {
   case "$FuzzyFinder" in
-    dmenu) dmenu -i -p "$Prompt" -fn "$Font" -l "$VerticalLines" -m "$Monitor" -nb "$BackgroundColor" -nf "$ForegroundColor" -sb "$SelectedBackgroundColor" -sf "$SelectedForegroundColor" ;;
+    dmenu) dmenu -i -p "$Prompt" -fn "$Font" -l "$VerticalLines" \
+      -m "$Monitor" -nb "$BackgroundColor" -nf "$ForegroundColor" \
+      -sb "$SelectedBackgroundColor" -sf "$SelectedForegroundColor" ;;
     fzf) fzf ;;
     *) echo "$FuzzyFinder in not a supported fuzzy finder"
 esac
@@ -241,7 +218,7 @@ elif [ ! -z $Remove ]; then
 # Echo the path of selected file
 elif [ ! -z $EchoPath ]; then
   selectBookmark
-  echo $Bookmark | sed 's/~/\/home\/brodie/'
+  echo $Bookmark | sed "s|~|$HOME|"
 # Normal operation
 else
   selectBookmark
