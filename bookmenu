@@ -65,6 +65,11 @@ DefaultConfig="# Sets the fuzzy finder to use, currently supported options are f
 # Command=$BROWSER
 "
 
+Err() {
+  printf "$2" 1>2&
+  exit $1
+}
+
 HelpPage() {
   echo "Future Help Page"
 }
@@ -132,42 +137,50 @@ do
       -f) FuzzyFinder=$Value ;;
       -a) Add=$Value ;;
       -r) Remove=$Value ;;
-      *) echo "Invalid option set" ; exit 1 ;;
+      *) Err 1 "Invalid option set" ;;
   esac
   fi
 done
 
-# Handle the assignment of config values
-while read Line; do
-  Key=${Line%%=*}
-  Value=${Line##*=}
-  case $Key in
-    VerticalLines)
-      [ -n "$Value" ] && VerticalLines=$Value ;;
-    Monitor)
-      [ -n "$Value" ] && Monitor=$Value ;;
-    Font)
-      [ -n "$Value" ] && Font="$Value" ;;
-    BackgroundColor)
-      [ -n "$Value" ] && BackgroundColor=$Value ;;
-    SelectedBackgroundColor)
-      [ -n "$Value" ] && SelectedBackgroundColor=$Value ;;
-    ForegroundColor)
-      [ -n "$Value" ] && ForegroundColor=$Value ;;
-    SelectedForegroundColor)
-      [ -n "$Value" ] && SelectedForegroundColor=$Value ;;
-    Seperator)
-      [ -n "$Value" ] && Seperator=$Value ;;
-    BookmarksFile)
-      [ -n "$Value" ] && BookmarksFile=$Value ;;
-    Command)
-      [ -n "$Value" ] && Command=$Value ;;
-    PromptText)
-      [ -n "$Value" ] && Prompt=$Value ;;
-    FuzzyFinder)
-      [ -n "$Value" ] && FuzzyFinder=$Value ;;
-  esac
-done < $ConfigFile
+# Quit with error if bookmarks file doesn't exist
+if [ ! -e $BookmarksFile ]; then
+  Err 1 "Selected bookmarks file does not exist"
+fi
+
+# Ignore config file if it doesn't exist
+if [ -e $ConfigFile ]; then
+  # Handle the assignment of config values
+  while read Line; do
+    Key=${Line%%=*}
+    Value=${Line##*=}
+    case $Key in
+      VerticalLines)
+        [ -n "$Value" ] && VerticalLines=$Value ;;
+      Monitor)
+        [ -n "$Value" ] && Monitor=$Value ;;
+      Font)
+        [ -n "$Value" ] && Font="$Value" ;;
+      BackgroundColor)
+        [ -n "$Value" ] && BackgroundColor=$Value ;;
+      SelectedBackgroundColor)
+        [ -n "$Value" ] && SelectedBackgroundColor=$Value ;;
+      ForegroundColor)
+        [ -n "$Value" ] && ForegroundColor=$Value ;;
+      SelectedForegroundColor)
+        [ -n "$Value" ] && SelectedForegroundColor=$Value ;;
+      Seperator)
+        [ -n "$Value" ] && Seperator=$Value ;;
+      BookmarksFile)
+        [ -n "$Value" ] && BookmarksFile=$Value ;;
+      Command)
+        [ -n "$Value" ] && Command=$Value ;;
+      PromptText)
+        [ -n "$Value" ] && Prompt=$Value ;;
+      FuzzyFinder)
+        [ -n "$Value" ] && FuzzyFinder=$Value ;;
+    esac
+  done < $ConfigFile
+fi
 
 # Opens the Selected fuzzy finder with the options set
 SelectFinder() {
@@ -176,7 +189,7 @@ SelectFinder() {
       -m "$Monitor" -nb "$BackgroundColor" -nf "$ForegroundColor" \
       -sb "$SelectedBackgroundColor" -sf "$SelectedForegroundColor" ;;
     fzf) fzf ;;
-    *) echo "$FuzzyFinder in not a supported fuzzy finder"
+    *) Err 1 "$FuzzyFinder in not a supported fuzzy finder"
 esac
 }
 
@@ -187,10 +200,14 @@ SelectPath() {
 
 # Handle urls to the file system
 FileSystem() {
-  if case $Bookmark in ~/*) ;; *) false;; esac; then
+  case $Bookmark in
+    ~/*) ;;
+    *) FullHomePath="" ;;
+  esac
+  if [ ! -n $FullHomePath ]; then
     $Command $Bookmark &
   else
-    FullPath="$HOME/$(echo $Bookmark | sed "s/~\///")"
+    FullPath="$HOME/${Bookmark##*/}"
     $Command $FullPath &
   fi
 }
@@ -201,10 +218,10 @@ Website() {
 }
 
 SelectBookmark() {
-  Bookmark=$(sort $BookmarksFile | sed "s/$Seperator.*//" | SelectFinder | SelectPath)
+  Bookmark=$(sort $BookmarksFile | sed "s/$Seperator.*//" | SelectFinder \
+    | SelectPath)
   if [ -z $Bookmark ]; then
-    echo "No Bookmark Selected"
-    exit
+    Err 1 "No bookmark selected"
   fi
 }
 
@@ -222,7 +239,7 @@ elif [ ! -z $EchoPath ]; then
 else
   SelectBookmark
   case "$Bookmark" in
-    ~\/*|\/*) FileSystem ;;
+    ~\/*|$HOME*) FileSystem ;;
     *) Website ;;
   esac
 fi
