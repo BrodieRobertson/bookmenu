@@ -207,7 +207,7 @@ FileSystem() {
   if [ ! -n $FullHomePath ]; then
     $Command $Bookmark &
   else
-    FullPath="$HOME/${Bookmark##*/}"
+    FullPath=$HOME/${Bookmark#"~/"}
     $Command $FullPath &
   fi
 }
