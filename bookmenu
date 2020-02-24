@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ConfigFolder=$HOME/.config/bookmenus
+ConfigFolder=${XDG_CONFIG_HOME:-"$HOME/.config"}/bookmenus
 
 VerticalLines=
 Monitor=
@@ -10,8 +10,8 @@ SelectedBackgroundColor="#444"
 ForegroundColor="#d8dee9"
 SelectedForegroundColor="#268bd2"
 Seperator=":"
-BookmarksFile=$HOME/.config/bookmenu/bookmarks
-ConfigFile=$HOME/.config/bookmenu/config
+BookmarksFile=${XDG_CONFIG_HOME:-"$HOME/.config"}/bookmenu/bookmarks
+ConfigFile=${XDG_CONFIG_HOME:-"$HOME/.config"}/bookmenu/config
 Command="$BROWSER"
 Prompt="Select a Bookmark"
 FuzzyFinder="dmenu"
