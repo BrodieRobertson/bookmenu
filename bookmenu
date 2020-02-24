@@ -1,7 +1,4 @@
 #!/bin/sh
-# Splits each Line of my Bookmarks file into an option to be passed into dmenu,
-# the Selected value in dmenu is used to load up a new window/tab in the Selected
-# browser
 
 ConfigFolder=$HOME/.config/bookmenus
 
