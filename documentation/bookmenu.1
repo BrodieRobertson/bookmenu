@@ -1,0 +1,114 @@
+.Dd February 24, 2020
+.Dt BOOKMENU 1
+.Os
+.
+.Sh NAME
+.Nm bookmenu
+.Nd "generic bookmark handler"
+.
+.Sh SYNOPSIS
+.Nm
+.Op Fl l Ar lines
+.Op Fl m Ar monitor
+.Op Fl p Ar prompt
+.Op Fl fn Ar font
+.Op Fl nb Ar color
+.Op Fl nf Ar color
+.Op Fl sb Ar color
+.Op Fl sf Ar color
+.Op Fl b Ar file
+.Op Fl c Ar configfile
+.Op Fl co Ar command
+.Op Fl sp Ar separator
+.Op Fl f Ar fuzzyfinder
+.Op Fl a Ar bookmark
+.Op Fl r Ar bookmark
+.Op Fl g
+.Op Fl gb
+.Op Fl gc
+.Op Fl o
+.Op Fl h
+.
+.Sh DESCRIPTION
+.Nm
+is a generic handler for bookmarks of different types.
+.Pp
+The options are as follows:
+.Bl -tag
+.It Fl l Ar lines
+When using dmenu, list items vertically with
+.Ar lines
+lines.
+List items with
+.Xr dmenu 1
+vertically with supplied number of
+.Ar lines .
+.It Fl m Ar monitor
+Select
+.Ar monitor
+used by
+.Xr dmenu 1 .
+.It Fl p Ar prompt
+Specify the
+.Ar prompt
+used by the fuzzy finder.
+.It Fl fn Ar font
+Select the used
+.Ar font .
+.It Fl nb Ar color
+Select the background color.
+.It Fl nf Ar color
+Select the foreground color.
+.It Fl sb Ar color
+Select the background color of the selected item.
+.It Fl sf Ar color
+Select the foreground color of the selected item.
+.It Fl b Ar file
+Select the bookmarks file.
+.It Fl c Ar configfile
+Select a configuration file.
+.It Fl co Ar command
+Specifies the command to open bookmarks.
+.It Fl sp Ar separator
+Specify the separator used in the bookmarks
+.Ar file .
+.It Fl f Ar fuzzyfinder
+Specify a fuzzy finder to select bookmarks with.
+.It Fl a Ar bookmark
+Add a bookmark.
+.It Fl r Ar bookmark
+Remove a bookmark.
+.It Fl g
+Regenerate the configuration directory.
+.It Fl gb
+Regenerate the default bookmark file.
+.It Fl gc
+Regenerate the default configuration file.
+.It Fl o
+Prints the destination of the selected bookmark.
+.It Fl h
+Print a help message.
+.El
+.Pp
+Colors may be specified as “#RRGGBB”, “#RGB” or with X11 color names.
+.
+.\"Sh FILES
+.
+.\"Sh EXAMPLES
+.\"Dl "bookmenu"
+.
+.Sh "SEE ALSO"
+.Xr dmenu 1 , Xr fzf 1
+.
+.Sh HISTORY
+.Nm
+originally was intended to eliminate the need to migrate bookmarks between
+browsers.
+.Nm
+first appeared in 2020.
+.
+.Sh AUTHORS
+.An "Brodie Robertson"
+.
+.Sh BUGS
+Yes.
