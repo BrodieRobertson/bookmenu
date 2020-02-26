@@ -18,14 +18,6 @@ ConfigFile=$HOME/.config/bookmenu/config
 Command="$BROWSER"
 Prompt="Select a Bookmark"
 FuzzyFinder="dmenu"
-BookmarksFile="duckduckgo:duckduckgo.com
-ebay:www.ebay.com
-paypal:www.paypal.com
-amazon:www.amazon.com
-youtube:www.youtube.com
-wikipedia:www.wikipedia.com
-github:www.github.com
-reddit:www.reddit.com"
 DefaultConfig="# Sets the fuzzy finder to use, currently supported options are fzf and dmenu
 # default: dmenu
 # FuzzyFinder=dmenu
