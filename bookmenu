@@ -127,7 +127,7 @@ do
       -sb) SelectedBackgroundColor=$Value ;;
       -sf) SelectedForegroundColor=$Value ;;
       -b) BookmarksFile=$Value ;;
-      -c) Config=$Value ;;
+      -c) ConfigFile=$Value ;;
       -co) Command=$Value ;;
       -sp) Seperator=$Value ;;
       -f) FuzzyFinder=$Value ;;
@@ -146,7 +146,7 @@ fi
 # Ignore config file if it doesn't exist
 if [ -e "$ConfigFile" ]; then
   # Handle the assignment of config values
-  while read Line; do
+  while read -r Line; do
     Key=${Line%%=*}
     Value=${Line##*=}
     case $Key in
@@ -196,16 +196,8 @@ SelectPath() {
 
 # Handle urls to the file system
 FileSystem() {
-  case $Bookmark in
-    ~/*) ;;
-    *) FullHomePath="" ;;
-  esac
-  if [ ! -n $FullHomePath ]; then
-    $Command "$Bookmark" &
-  else
-    FullPath=$HOME/${Bookmark#"~/"}
-    $Command "$FullPath" &
-  fi
+  FullPath=$(echo "$Bookmark" | sed "s|~/|$HOME/|")
+  $Command "$FullPath" &
 }
 
 # Handle urls to a website
@@ -236,6 +228,6 @@ else
   SelectBookmark
   case "$Bookmark" in
     ~\/*|$HOME*) FileSystem ;;
-    # *) Website ;;
+    *) Website ;;
   esac
 fi
