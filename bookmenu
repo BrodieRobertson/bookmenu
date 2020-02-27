@@ -1,9 +1,6 @@
 #!/bin/sh
-# Splits each Line of my Bookmarks file into an option to be passed into dmenu,
-# the Selected value in dmenu is used to load up a new window/tab in the Selected
-# browser
 
-ConfigFolder=$HOME/.config/bookmenus
+ConfigFolder=${XDG_CONFIG_HOME:-"$HOME/.config"}/bookmenus
 
 VerticalLines=
 Monitor=
@@ -13,12 +10,12 @@ SelectedBackgroundColor="#444"
 ForegroundColor="#d8dee9"
 SelectedForegroundColor="#268bd2"
 Seperator=":"
-BookmarksFile=$HOME/.config/bookmenu/bookmarks
-ConfigFile=$HOME/.config/bookmenu/config
-Command="$BROWSER"
+BookmarksFile=${XDG_CONFIG_HOME:-"$HOME/.config"}/bookmenu/bookmarks
+ConfigFile=${XDG_CONFIG_HOME:-"$HOME/.config"}/bookmenu/config
+Command="xdg-open"
 Prompt="Select a Bookmark"
 FuzzyFinder="dmenu"
-BookmarksFile="duckduckgo:duckduckgo.com
+DefaultBookmarksFile="duckduckgo:duckduckgo.com
 ebay:www.ebay.com
 paypal:www.paypal.com
 amazon:www.amazon.com
@@ -40,13 +37,13 @@ DefaultConfig="# Sets the fuzzy finder to use, currently supported options are f
 # Sets the background color of the dmenu prompt
 # BackgroundColor=#1d1f21
 
-# Sets the forground color unSelected items in the dmenu prompt
+# Sets the forground color unselected items in the dmenu prompt
 # ForegroundColor=#d8dee9
 
-# Sets the background of the Selected items in the dmenu prompt
+# Sets the background of the selected items in the dmenu prompt
 # SelectedBackgroundColor=#444
 
-# Sets the foreground color of the Selected item in the dmenu prompt
+# Sets the foreground color of the selected item in the dmenu prompt
 # SelectedForegroundColor=#268bd2
 
 # Sets the font used by the dmenu prompt
@@ -66,8 +63,8 @@ DefaultConfig="# Sets the fuzzy finder to use, currently supported options are f
 "
 
 Err() {
-  printf "$2" 1>2&
-  exit $1
+  echo "$2" 1>&2
+  exit "$1"
 }
 
 HelpPage() {
@@ -75,36 +72,35 @@ HelpPage() {
 }
 
 GenerateConfig() {
-  if [ $1 = "-g" ]; then
-    if [ -d $ConfigFolder ]; then
-      rm -rf $ConfigFolder
-      mkdir $ConfigFolder
-      echo "$DefaultConfig" > $ConfigFolder/config
-      echo "$DefaultBookmarksFile" > $ConfigFolder/bookmarks
+  if [ "$1" = "-g" ]; then
+    if [ -d "$ConfigFolder" ]; then
+      rm -rf "$ConfigFolder"
+      mkdir "$ConfigFolder"
+      echo "$DefaultConfig" > "$ConfigFolder/config"
+      echo "$DefaultBookmarksFile" > "$ConfigFolder/bookmarks"
     else
-      mkdir $ConfigFolder
-      echo "$DefaultConfig" > $ConfigFolder/config
-      echo "$DefaultBookmarksFile" > $ConfigFolder/bookmarks
+      mkdir "$ConfigFolder"
+      echo "$DefaultConfig" > "$ConfigFolder/config"
+      echo "$DefaultBookmarksFile" > "$ConfigFolder/bookmarks"
     fi
   # Regenerate config file
-  elif [ $1 = "-gc" ]; then
-    if [ -d $ConfigFolder ]; then
-      echo "$DefaultConfig" > $ConfigFolder/config
+  elif [ "$1" = "-gc" ]; then
+    if [ -d "$ConfigFolder" ]; then
+      echo "$DefaultConfig" > "$ConfigFolder/config"
     else
-      mkdir $ConfigFolder
-      echo "$DefaultConfig" > $ConfigFolder/config
+      mkdir "$ConfigFolder"
+      echo "$DefaultConfig" > "$ConfigFolder/config"
     fi
   # Regenerate Bookmarks file
   else
-    if [ -d $ConfigFolder ]; then
-      echo "$DefaultConfig" > $ConfigFolder/config
+    if [ -d "$ConfigFolder" ]; then
+      echo "$DefaultConfig" > "$ConfigFolder/config"
     else
-      mkdir $ConfigFolder
-      echo "$DefaultConfig" > $ConfigFolder/config
-      echo "$DefaultBookmarksFile" > $ConfigFolder/bookmarks
+      mkdir "$ConfigFolder"
+      echo "$DefaultConfig" > "$ConfigFolder/config"
+      echo "$DefaultBookmarksFile" > "$ConfigFolder/bookmarks"
     fi
   fi
-
 }
 
 # Loop over arguments to script
@@ -116,11 +112,11 @@ do
     -m|-l|-p|-fn|-nb|-sb|-sf|-co|-c|-b|-sp|-f|-a|-r) OptionSet=$Value ;;
     -h|--help) HelpPage; exit 0;;
     -o) EchoPath=true; OptionSet=;;
-    -g|-gc|-gb) GenerateConfig $Value; OptionSet= ;;
+    -g|-gc|-gb) GenerateConfig "$Value"; OptionSet= ;;
   esac
 
   # Handle arguments
-  if [ ! -z $OptionSet ]; then
+  if [ -n "$OptionSet" ]; then
     case "$OptionSet" in
       -l) VerticalLines=$Value ;;
       -m) Monitor=$Value ;;
@@ -143,12 +139,12 @@ do
 done
 
 # Quit with error if bookmarks file doesn't exist
-if [ ! -e $BookmarksFile ]; then
+if [ ! -e "$BookmarksFile" ]; then
   Err 1 "Selected bookmarks file does not exist"
 fi
 
 # Ignore config file if it doesn't exist
-if [ -e $ConfigFile ]; then
+if [ -e "$ConfigFile" ]; then
   # Handle the assignment of config values
   while read Line; do
     Key=${Line%%=*}
@@ -179,7 +175,7 @@ if [ -e $ConfigFile ]; then
       FuzzyFinder)
         [ -n "$Value" ] && FuzzyFinder=$Value ;;
     esac
-  done < $ConfigFile
+  done < "$ConfigFile"
 fi
 
 # Opens the Selected fuzzy finder with the options set
@@ -195,7 +191,7 @@ esac
 
 # Selects the path based on the name
 SelectPath() {
-  xargs -I % grep "%$Seperator" $BookmarksFile | sed "s/.*$Seperator//;"
+  xargs -I % grep "%$Seperator" "$BookmarksFile" | sed "s/.*$Seperator//;"
 }
 
 # Handle urls to the file system
@@ -205,41 +201,41 @@ FileSystem() {
     *) FullHomePath="" ;;
   esac
   if [ ! -n $FullHomePath ]; then
-    $Command $Bookmark &
+    $Command "$Bookmark" &
   else
     FullPath=$HOME/${Bookmark#"~/"}
-    $Command $FullPath &
+    $Command "$FullPath" &
   fi
 }
 
 # Handle urls to a website
 Website() {
-  $Command $Bookmark &
+  $Command "$Bookmark" &
 }
 
 SelectBookmark() {
-  Bookmark=$(sort $BookmarksFile | sed "s/$Seperator.*//" | SelectFinder \
+  Bookmark=$(sort "$BookmarksFile" | sed "s/$Seperator.*//" | SelectFinder \
     | SelectPath)
-  if [ -z $Bookmark ]; then
+  if [ -z "$Bookmark" ]; then
     Err 1 "No bookmark selected"
   fi
 }
 
 # Add new Bookmark
-if [ ! -z $Add ]; then
-  echo "$Add" >> $BookmarksFile
+if [ -n "$Add" ]; then
+  echo "$Add" >> "$BookmarksFile"
 # Remove Bookmark
-elif [ ! -z $Remove ]; then
-  sed -i "/$Remove:/d" $BookmarksFile
+elif [ -n "$Remove" ]; then
+  sed -i "/$Remove:/d" "$BookmarksFile"
 # Echo the path of Selected file
-elif [ ! -z $EchoPath ]; then
+elif [ -n "$EchoPath" ]; then
   SelectBookmark
-  echo $Bookmark | sed "s|~|$HOME|"
+  echo "$Bookmark" | sed "s|~|$HOME|"
 # Normal operation
 else
   SelectBookmark
   case "$Bookmark" in
     ~\/*|$HOME*) FileSystem ;;
-    *) Website ;;
+    # *) Website ;;
   esac
 fi
