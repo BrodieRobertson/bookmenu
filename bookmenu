@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ConfigFolder=${XDG_CONFIG_HOME:-"$HOME/.config"}/bookmenus
 
@@ -103,40 +103,58 @@ GenerateConfig() {
   fi
 }
 
-# Loop over arguments to script
-for Value in "$@"
-do
-  # Handle options
-  case "$Value" in
-    # Options requring arguments
-    -m|-l|-p|-fn|-nb|-sb|-sf|-co|-c|-b|-sp|-f|-a|-r) OptionSet=$Value ;;
-    -h|--help) HelpPage; exit 0;;
-    -o) EchoPath=true; OptionSet=;;
-    -g|-gc|-gb) GenerateConfig "$Value"; OptionSet= ;;
-  esac
+# Handle options using getopts
+# getopts cannot handle multiple char options.
+# I used a hack to get around that fact but it is not perfect.
+# For you need to use bash to get it to work.
+# You could also use gnu getopt which allows you to use
+# the --ARGUMENT syntax. But it is not posix compliant.
+# you might want to consider only using single char arguments.
+Options() {
+    while getopts ':l:m:p:f:n:s:b:c:a:r:hog:' opt; do
+        case "${opt}" in
+          l) VerticalLines=${OPTARG} ;;
+          m) Monitor=${OPTARG} ;;
+          p) Prompt=${OPTARG} ;;
 
-  # Handle arguments
-  if [ -n "$OptionSet" ]; then
-    case "$OptionSet" in
-      -l) VerticalLines=$Value ;;
-      -m) Monitor=$Value ;;
-      -p) Prompt=$Value ;;
-      -fn) Font=$Value ;;
-      -nb) BackgroundColor=$Value ;;
-      -nf) ForegroundColor=$Value ;;
-      -sb) SelectedBackgroundColor=$Value ;;
-      -sf) SelectedForegroundColor=$Value ;;
-      -b) BookmarksFile=$Value ;;
-      -c) ConfigFile=$Value ;;
-      -co) Command=$Value ;;
-      -sp) Seperator=$Value ;;
-      -f) FuzzyFinder=$Value ;;
-      -a) Add=$Value ;;
-      -r) Remove=$Value ;;
-      *) Err 1 "Invalid option set" ;;
-  esac
-  fi
-done
+          f) case "${OPTARG}" in
+              n) Font=${!OPTIND}; OPTIND=$($OPTIND + 1) ;;
+              *) FuzzyFinder=${OPTARG} ;;
+            esac ;;
+
+          n) case "${OPTARG}" in
+              b) BackgroundColor="${!OPTIND}"; OPTIND=$(( $OPTIND + 1 )) ;;
+              f) ForegroundColor=${!OPTIND}; OPTIND=$($OPTIND + 1) ;;
+              *) echo "Unknown Option -n${OPTARG}" ;;
+            esac ;;
+
+          s) case "${OPTARG}" in
+              b) SelectedBackgroundColor=${!OPTIND}; OPTIND=$($OPTIND + 1) ;;
+              f) SelectedForegroundColor=${!OPTIND}; OPTIND=$($OPTIND + 1) ;;
+              p) Seperator=${!OPTIND}; OPTIND=$($OPTIND + 1) ;;
+              *) echo "Unknown Option -s${OPTARG}" ;;
+            esac;;
+              
+          b) BookmarksFile=${OPTARG} ;;
+
+          c) case "${OPTARG}" in
+              o) Command=${!OPTIND}; OPTIND=$($OPTIND + 1) ;;
+              *) ConfigFile=${OPTARG} ;;
+            esac;;
+
+          a) Add=${OPTARG} ;;
+          r) Remove=${OPTARG} ;;
+          h) HelpPage; exit 0;;
+          o) EchoPath=true; OptionSet=;;
+          g) GenerateConfig "${OPTARG}"; OptionSet= ;;
+          *) Err 1 "Invalid option set" ;;
+        esac
+    done
+    shift "$((OPTIND-1))"
+}
+
+Options $@
+
 
 # Quit with error if bookmarks file doesn't exist
 if [ ! -e "$BookmarksFile" ]; then
