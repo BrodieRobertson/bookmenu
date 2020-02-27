@@ -15,7 +15,7 @@ ConfigFile=${XDG_CONFIG_HOME:-"$HOME/.config"}/bookmenu/config
 Command="xdg-open"
 Prompt="Select a Bookmark"
 FuzzyFinder="dmenu"
-BookmarksFile="duckduckgo:duckduckgo.com
+DefaultBookmarksFile="duckduckgo:duckduckgo.com
 ebay:www.ebay.com
 paypal:www.paypal.com
 amazon:www.amazon.com
@@ -37,13 +37,13 @@ DefaultConfig="# Sets the fuzzy finder to use, currently supported options are f
 # Sets the background color of the dmenu prompt
 # BackgroundColor=#1d1f21
 
-# Sets the forground color unSelected items in the dmenu prompt
+# Sets the forground color unselected items in the dmenu prompt
 # ForegroundColor=#d8dee9
 
-# Sets the background of the Selected items in the dmenu prompt
+# Sets the background of the selected items in the dmenu prompt
 # SelectedBackgroundColor=#444
 
-# Sets the foreground color of the Selected item in the dmenu prompt
+# Sets the foreground color of the selected item in the dmenu prompt
 # SelectedForegroundColor=#268bd2
 
 # Sets the font used by the dmenu prompt
@@ -101,7 +101,6 @@ GenerateConfig() {
       echo "$DefaultBookmarksFile" > "$ConfigFolder/bookmarks"
     fi
   fi
-
 }
 
 # Loop over arguments to script
@@ -201,7 +200,7 @@ FileSystem() {
     ~/*) ;;
     *) FullHomePath="" ;;
   esac
-  if [ -z $FullHomePath ]; then
+  if [ ! -n $FullHomePath ]; then
     $Command "$Bookmark" &
   else
     FullPath=$HOME/${Bookmark#"~/"}
@@ -236,7 +235,7 @@ elif [ -n "$EchoPath" ]; then
 else
   SelectBookmark
   case "$Bookmark" in
-    ~/*|$HOME*) FileSystem ;;
-    *) Website ;;
+    ~\/*|$HOME*) FileSystem ;;
+    # *) Website ;;
   esac
 fi
