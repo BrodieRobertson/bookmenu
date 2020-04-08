@@ -22,7 +22,7 @@
 # SelectedForegroundColor=#268bd2
 
 # Sets the font used by the dmenu prompt
-# FONT=Mono-12
+# Font=Mono-12
 
 # Sets the seperator to be used to split the names and the paths in the bookmark files
 # Seperator=:
@@ -31,7 +31,7 @@
 # VerticalLines=
 
 # Sets the location of the bookmarks file
-# BookmarksFile=~/.config/bookmenu/bookmarks
+# BookmarksFile=$HOME/.config/bookmenu/bookmarks
 
 # Sets the command used to open a bookmark with
 # Command=$BROWSER
