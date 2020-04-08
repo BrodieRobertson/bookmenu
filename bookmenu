@@ -91,9 +91,10 @@ do
   fi
 done
 
-# Quit with error if bookmarks file doesn't exist
+# Create bookmarks file if it doesn't exist
 if [ ! -e "$BookmarksFile" ]; then
-  Err 1 "Selected bookmarks file does not exist"
+  mkdir -p "$ConfigFolder"
+  cp /usr/share/bookmenu/bookmarks "$ConfigFolder/bookmarks"
 fi
 
 # Ignore config file if it doesn't exist
