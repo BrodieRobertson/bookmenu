@@ -1,0 +1,5 @@
+#/bin/sh
+
+sudo cp ./documentation/bookmenu.1 /usr/share/man/man1
+sudo cp ./bookmenu /usr/bin
+sudo chmod +x /usr/bin/bookmenu
