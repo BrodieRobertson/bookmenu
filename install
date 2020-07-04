@@ -2,14 +2,14 @@
 
 ConfigFolder=${XDG_CONFIG_HOME:-"$HOME/.config"}/bookmenu
 
-sudo cp ./documentation/bookmenu.1 /usr/share/man/man1
-sudo cp ./bookmenu /usr/bin
+sudo cp -i ./documentation/bookmenu.1 /usr/share/man/man1
+sudo cp -i./bookmenu /usr/bin
 sudo chmod +x /usr/bin/bookmenu
 
 sudo mkdir /usr/share/bookmenu
-sudo cp ./config/bookmarks /usr/share/bookmenu
-sudo cp ./config/config /usr/share/bookmenu
+sudo cp -i ./config/bookmarks /usr/share/bookmenu
+sudo cp -i ./config/config /usr/share/bookmenu
 
 mkdir "$ConfigFolder"
-cp ./config/bookmarks $ConfigFolder/config
-cp ./config/bookmarks $ConfigFolder/bookmarks
+cp -i ./config/bookmarks $ConfigFolder/config
+cp -i ./config/bookmarks $ConfigFolder/bookmarks
