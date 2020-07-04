@@ -6,10 +6,10 @@ sudo cp -i ./documentation/bookmenu.1 /usr/share/man/man1
 sudo cp -i./bookmenu /usr/bin
 sudo chmod +x /usr/bin/bookmenu
 
-sudo mkdir /usr/share/bookmenu
+sudo mkdir -p /usr/share/bookmenu
 sudo cp -i ./config/bookmarks /usr/share/bookmenu
 sudo cp -i ./config/config /usr/share/bookmenu
 
-mkdir "$ConfigFolder"
+mkdir -p "$ConfigFolder"
 cp -i ./config/bookmarks $ConfigFolder/config
 cp -i ./config/bookmarks $ConfigFolder/bookmarks
