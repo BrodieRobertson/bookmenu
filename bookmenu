@@ -159,7 +159,7 @@ Website() {
 }
 
 SelectBookmark() {
-  Bookmark=$(sort "$BookmarksFile" | sed "s/$Seperator.*//" | SelectFinder \
+  Bookmark=$(sort "$BookmarksFile" | grep -v '^#\|^\s*$' sed "s/$Seperator.*//" | SelectFinder \
     | SelectPath)
   if [ -z "$Bookmark" ]; then
     Err 1 "No bookmark selected"
